@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Photo Collage</title>
+    <script src="frame.js"></script>
+</head>
+<style>
+    @keyframes fade_in {
+        from {opacity: 0;}
+        to {opacity: 1;}
+    }
+
+    html,body {
+        height: 99%;
+        width: 99%;
+    }
+</style>
+<script>
+    frame_update_callbacks = []
+
+    function on_resize() {
+        frame_update_callbacks.forEach(update_frame => update_frame())
+    }
+
+    function insert_image() {
+        let frame = new Frame(35)
+        frame.add_to_body()
+        frame_update_callbacks.push(function() {frame.update()})
+    }
+</script>
+<body onresize="on_resize()">
+<button onclick="insert_image()">Add</button>
+</body>
+</html>
