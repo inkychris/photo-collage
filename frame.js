@@ -36,6 +36,12 @@ class Frame {
         this.container.style.height = `${pixel_height}px`
     }
 
+    populate_with_image(src) {
+        let image = document.createElement("img")
+        image.src = src
+        this.container.appendChild(image)
+    }
+
     fade_in() {
         this.container.style.animationName = "fade_in"
         this.container.style.animationDuration = `${this.fade_in_time}s`

@@ -21,6 +21,15 @@
         width: 99%;
         background-color: black;
     }
+
+    div img {
+        max-height: 100%;
+        max-width: 100%;
+        transform: translate(-50%, -50%);
+        position: relative;
+        left: 50%;
+        top: 50%;
+    }
 </style>
 <script>
     frame_update_callbacks = []
@@ -36,8 +45,10 @@
         })
     }
 
+    image_index = 24475
     function insert_image() {
-        let frame = new Frame(35)
+        let frame = new Frame(40)
+        frame.populate_with_image(`http://192.168.1.108:8200/MediaItems/${image_index++}.jpg`)
         frame.add_to_body()
         frame_update_callbacks.push(function() {frame.update()})
         frame.fade_in()
@@ -46,7 +57,7 @@
         setTimeout(function() { frame.remove_from_body() }, fadeout_delay + (frame.fade_out_time * 1000))
     }
 
-    setInterval(insert_image, 5000)
+    setInterval(insert_image, 1500)
 </script>
 <body onresize="on_resize()"></body>
 </html>
