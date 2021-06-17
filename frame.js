@@ -3,7 +3,7 @@ function random_hsl() {
 }
 
 class Frame {
-    aspect_ratio = 3 / 4
+    aspect_ratio = 4/3
     fade_in_time = 5
     fade_out_time = 10
 
@@ -23,11 +23,11 @@ class Frame {
 
     update() {
         var pixel_height = window.innerHeight * this.scale / 100
-        var pixel_width = pixel_height / this.aspect_ratio
+        var pixel_width = pixel_height * this.aspect_ratio
 
         if (100 * pixel_width / window.innerWidth > this.scale) {
             pixel_width = window.innerWidth * this.scale / 100
-            pixel_height = pixel_width * this.aspect_ratio
+            pixel_height = pixel_width / this.aspect_ratio
         }
 
         this.container.style.left = `${this.x_rand * (window.innerWidth - pixel_width)}px`
