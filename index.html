@@ -11,6 +11,11 @@
         to {opacity: 1;}
     }
 
+    @keyframes fade_out {
+        from {opacity: 1;}
+        to {opacity: 0;}
+    }
+
     html,body {
         height: 99%;
         width: 99%;
@@ -21,16 +26,27 @@
     frame_update_callbacks = []
 
     function on_resize() {
-        frame_update_callbacks.forEach(update_frame => update_frame())
+        old_callbacks = []
+        frame_update_callbacks.forEach(update_frame => {
+            try { update_frame() }
+            catch (e) {old_callbacks.push(update_frame)}
+        })
+        frame_update_callbacks = frame_update_callbacks.filter( function(element) {
+            return !old_callbacks.includes(element);
+        })
     }
 
     function insert_image() {
         let frame = new Frame(35)
         frame.add_to_body()
         frame_update_callbacks.push(function() {frame.update()})
+        frame.fade_in()
+        let fadeout_delay = (frame.fade_in_time + 20) * 1000
+        setTimeout(function() { frame.fade_out() }, fadeout_delay)
+        setTimeout(function() { frame.remove_from_body() }, fadeout_delay + (frame.fade_out_time * 1000))
     }
+
+    setInterval(insert_image, 5000)
 </script>
-<body onresize="on_resize()">
-<button onclick="insert_image()">Add</button>
-</body>
+<body onresize="on_resize()"></body>
 </html>

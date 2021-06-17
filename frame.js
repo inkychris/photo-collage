@@ -4,6 +4,8 @@ function random_hsl() {
 
 class Frame {
     aspect_ratio = 3 / 4
+    fade_in_time = 5
+    fade_out_time = 10
 
     constructor(scale) {
         this.scale = scale
@@ -15,7 +17,7 @@ class Frame {
         this.container.classList.add("frame")
         this.container.style.position = "absolute"
         this.container.style.backgroundColor = random_hsl()
-
+        this.container.style.opacity = 0
         this.update()
     }
 
@@ -34,7 +36,19 @@ class Frame {
         this.container.style.height = `${pixel_height}px`
     }
 
+    fade_in() {
+        this.container.style.animation = `fade_in ${this.fade_in_time}s forwards`
+    }
+
+    fade_out() {
+        this.container.style.animation = `fade_out ${this.fade_out_time}s forwards`
+    }
+
     add_to_body() {
         document.body.appendChild(this.container)
+    }
+
+    remove_from_body() {
+        document.body.removeChild(this.container)
     }
 }
