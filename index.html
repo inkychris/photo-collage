@@ -35,7 +35,7 @@
     frame_update_callbacks = []
 
     function on_resize() {
-        old_callbacks = []
+        let old_callbacks = []
         frame_update_callbacks.forEach(update_frame => {
             try { update_frame() }
             catch (e) {old_callbacks.push(update_frame)}
