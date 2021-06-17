@@ -32,7 +32,7 @@
     }
 </style>
 <script>
-    frame_update_callbacks = []
+    let frame_update_callbacks = []
 
     function on_resize() {
         let old_callbacks = []
@@ -45,16 +45,14 @@
         })
     }
 
-    image_index = 24475
     function insert_image() {
-        let frame = new Frame(40)
-        frame.populate_with_image(`http://192.168.1.108:8200/MediaItems/${image_index++}.jpg`)
+        let frame = new Frame(new Vector(Math.random(), Math.random()), 0.35, 4/3)
         frame.add_to_body()
         frame_update_callbacks.push(function() {frame.update()})
-        frame.fade_in()
-        let fadeout_delay = (frame.fade_in_time + 20) * 1000
-        setTimeout(function() { frame.fade_out() }, fadeout_delay)
-        setTimeout(function() { frame.remove_from_body() }, fadeout_delay + (frame.fade_out_time * 1000))
+        frame.fade_in(5)
+        let fadeout_delay = 10 * 1000
+        setTimeout(function() { frame.fade_out(5) }, fadeout_delay)
+        setTimeout(function() { frame.remove_from_body() }, fadeout_delay + (5 * 1000))
     }
 
     setInterval(insert_image, 1500)
