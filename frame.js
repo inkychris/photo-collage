@@ -37,11 +37,17 @@ class Frame {
     }
 
     fade_in() {
-        this.container.style.animation = `fade_in ${this.fade_in_time}s forwards`
+        this.container.style.animationName = "fade_in"
+        this.container.style.animationDuration = `${this.fade_in_time}s`
+        this.container.style.animationFillMode = "forwards"
+        this.container.style.animationDelay = "0.5s"
     }
 
     fade_out() {
-        this.container.style.animation = `fade_out ${this.fade_out_time}s forwards`
+        this.container.style.animationName = "fade_out"
+        this.container.style.animationDuration = `${this.fade_out_time}s`
+        this.container.style.animationFillMode = "forwards"
+        this.container.style.animationDelay = "0s"
     }
 
     add_to_body() {
