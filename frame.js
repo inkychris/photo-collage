@@ -13,6 +13,8 @@ class Collage {
 
         this.max_frames_to_avoid = 5
         this.active_frames = []
+
+        this.counter = 1
     }
 
     update() {
@@ -39,8 +41,14 @@ class Collage {
     insert_new_frame() {
         let frame = this.new_frame()
         this.active_frames.push(frame)
+
+        let id = document.createElement("h1")
+        id.textContent = `index: ${frame.index}`
+        frame.populate(id)
+
         frame.add_to_body()
         frame.fade_in(this.fade_in_time)
+
         let instance = this
         setTimeout(function() {
             frame.fade_out(instance.fade_out_time)
@@ -53,7 +61,9 @@ class Collage {
 }
 
 class Frame {
-    constructor(position, scale, aspect_ratio) {
+    constructor(position, scale, aspect_ratio, index) {
+        this.index = index
+
         this.position = position
         this.scale = scale
         this.aspect_ratio = aspect_ratio
