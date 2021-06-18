@@ -32,30 +32,8 @@
     }
 </style>
 <script>
-    let frame_update_callbacks = []
-
-    function on_resize() {
-        let old_callbacks = []
-        frame_update_callbacks.forEach(update_frame => {
-            try { update_frame() }
-            catch (e) {old_callbacks.push(update_frame)}
-        })
-        frame_update_callbacks = frame_update_callbacks.filter( function(element) {
-            return !old_callbacks.includes(element);
-        })
-    }
-
-    function insert_image() {
-        let frame = new Frame(new Vector(Math.random(), Math.random()), 0.35, 4/3)
-        frame.add_to_body()
-        frame_update_callbacks.push(function() {frame.update()})
-        frame.fade_in(5)
-        let fadeout_delay = 10 * 1000
-        setTimeout(function() { frame.fade_out(5) }, fadeout_delay)
-        setTimeout(function() { frame.remove_from_body() }, fadeout_delay + (5 * 1000))
-    }
-
-    setInterval(insert_image, 1500)
+    let collage = new Collage()
+    setInterval(function() { collage.insert_new_frame() }, 1500)
 </script>
-<body onresize="on_resize()"></body>
+<body onresize="collage.update()"></body>
 </html>
