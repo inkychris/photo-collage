@@ -11,6 +11,7 @@ class Collage {
         this.fade_out_delay = 10
         this.fade_out_time = 10
 
+        this.max_frames_to_avoid = 5
         this.active_frames = []
     }
 
@@ -18,8 +19,25 @@ class Collage {
         this.active_frames.forEach(frame => frame.update())
     }
 
-    insert_new_frame() {
+    new_frame() {
         let frame = new Frame({x: Math.random(), y: Math.random()}, this.scale, this.aspect_ratio)
+        let total_attempts = 0
+        for (let frames_to_avoid = this.max_frames_to_avoid; frames_to_avoid >= 0; frames_to_avoid--) {
+            let previous_frames = this.active_frames.slice(-frames_to_avoid)
+            for (let attempts = 0; attempts < 50; attempts++) {
+                total_attempts++;
+                frame.position.x = Math.random()
+                frame.position.y = Math.random()
+                frame.update()
+                if (!previous_frames.some(previous_frame => previous_frame.overlaps(frame))) {
+                    return frame
+                }
+            }
+        }
+    }
+
+    insert_new_frame() {
+        let frame = this.new_frame()
         this.active_frames.push(frame)
         frame.add_to_body()
         frame.fade_in(this.fade_in_time)
