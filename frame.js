@@ -4,7 +4,7 @@ function random_hsl() {
 
 class Collage {
     constructor() {
-        this.aspect_ratio = 4/3
+        this.aspect_ratio = 1
         this.scale = 0.37
 
         this.fade_in_time = 5
