@@ -2,16 +2,36 @@ function random_hsl() {
     return 'hsla(' + (Math.random() * 360) + ', 100%, 50%, 1)';
 }
 
+function positions(cols, rows) {
+    let result = []
+    for (let col = 0; col < cols; col++)
+        for (let row = 0; row < rows; row++)
+            result.push({x: col / (cols - 1), y: row / (rows - 1)})
+    return result
+}
+
+function shuffle(array) {
+    let m = array.length, t, i;
+    while (m) {
+        i = Math.floor(Math.random() * m--);
+        t = array[m];
+        array[m] = array[i];
+        array[i] = t;
+    }
+    return array;
+}
+
 class Collage {
     constructor() {
         this.aspect_ratio = 1
-        this.scale = 0.37
+        this.scale = 0.35
+        this.scale_range = 0.1
 
         this.fade_in_time = 5
         this.fade_out_delay = 10
         this.fade_out_time = 10
 
-        this.max_frames_to_avoid = 5
+        this.positions = positions(16, 16)
         this.active_frames = []
 
         this.counter = 1
@@ -22,29 +42,29 @@ class Collage {
     }
 
     new_frame() {
-        let frame = new Frame({x: Math.random(), y: Math.random()}, this.scale, this.aspect_ratio)
-        let total_attempts = 0
-        for (let frames_to_avoid = this.max_frames_to_avoid; frames_to_avoid >= 0; frames_to_avoid--) {
-            let previous_frames = this.active_frames.slice(-frames_to_avoid)
-            for (let attempts = 0; attempts < 50; attempts++) {
-                total_attempts++;
-                frame.position.x = Math.random()
-                frame.position.y = Math.random()
-                frame.update()
-                if (!previous_frames.some(previous_frame => previous_frame.overlaps(frame))) {
-                    return frame
-                }
-            }
-        }
+        let global_frame_index = this.counter++
+        let scale = this.scale + (Math.random() - 0.5) * this.scale_range
+
+        let potential_frames =  shuffle(this.positions).map(pos =>
+            new Frame(pos, scale, this.aspect_ratio, global_frame_index))
+
+        if (this.active_frames.length < 1)
+            return potential_frames[0]
+
+        let overlap_weightings = potential_frames.map(potential_frame =>
+            this.active_frames.reduce((sum, frame_to_avoid) =>
+                sum + potential_frame.overlap(frame_to_avoid) / (potential_frame.index - frame_to_avoid.index)
+            , 0))
+
+        let min_overlap_weighting = Math.min(...overlap_weightings)
+        let frame_index = overlap_weightings.indexOf(min_overlap_weighting)
+        console.log(`found position with ${min_overlap_weighting} overlap weighting, frame index ${frame_index}`)
+        return potential_frames[frame_index]
     }
 
     insert_new_frame() {
         let frame = this.new_frame()
         this.active_frames.push(frame)
-
-        let id = document.createElement("h1")
-        id.textContent = `index: ${frame.index}`
-        frame.populate(id)
 
         frame.add_to_body()
         frame.fade_in(this.fade_in_time)
@@ -94,23 +114,21 @@ class Frame {
         this.container.style.height = `${this.pixel_height}px`
     }
 
-    contains_coordinate(coordinate) {
-        let within_horizontal = coordinate.x >= this.pixel_left && coordinate.x <= this.pixel_left + this.pixel_width
-        let within_vertical = coordinate.y >= this.pixel_top && coordinate.y <= this.pixel_top + this.pixel_height
-        return within_horizontal && within_vertical
+    get bounds() {
+        return {
+            left: this.pixel_left,
+            right: this.pixel_left + this.pixel_width,
+            top: this.pixel_top,
+            bottom: this.pixel_top + this.pixel_height,
+        }
     }
 
-    get corners() {
-        return [
-            {x: this.pixel_left, y: this.pixel_top},
-            {x: this.pixel_left + this.pixel_width, y: this.pixel_top},
-            {x: this.pixel_left, y: this.pixel_top + this.pixel_height},
-            {x: this.pixel_left + this.pixel_width, y: this.pixel_top + this.pixel_height},
-        ]
-    }
-
-    overlaps(other_frame) {
-        return this.corners.some(corner => other_frame.contains_coordinate(corner))
+    overlap(other_frame) {
+        let self = this.bounds
+        let other = other_frame.bounds
+        let x_overlap = Math.max(0, Math.min(self.right, other.right) - Math.max(self.left, other.left));
+        let y_overlap = Math.max(0, Math.min(self.bottom, other.bottom) - Math.max(self.top, other.top));
+        return x_overlap * y_overlap;
     }
 
     populate_with_image(src) {
