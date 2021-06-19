@@ -106,6 +106,11 @@ class Frame {
         this.container.style.backgroundColor = random_hsl()
         this.container.style.opacity = "0"
         this.update()
+
+        let label = document.createElement("div")
+        label.classList.add("frame_index")
+        label.textContent = this.index
+        this.add_element(label)
     }
 
     update() {
@@ -143,10 +148,8 @@ class Frame {
         return x_overlap * y_overlap;
     }
 
-    populate_with_image(src) {
-        let image = document.createElement("img")
-        image.src = src
-        this.container.appendChild(image)
+    add_element(element) {
+        this.container.appendChild(element)
     }
 
     fade_in(duration) {
