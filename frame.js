@@ -27,9 +27,9 @@ class Collage {
         this.scale = 0.35
         this.scale_range = 0.1
 
-        this.fade_in_time = 5
+        this.fade_in_time = 3
         this.fade_out_delay = 10
-        this.fade_out_time = 10
+        this.fade_out_time = 40
 
         this.positions = positions(16, 16)
         this.active_frames = []
@@ -77,6 +77,18 @@ class Collage {
             frame.remove_from_body()
             instance.active_frames = instance.active_frames.filter(element => element !== frame)
         }, instance.fade_out_delay * 1000 + (instance.fade_out_time * 1000))
+    }
+
+    run(display_rate=1) {
+        this.insert_new_frame()
+        let self = this
+        this.interval = setInterval(function() {
+            self.insert_new_frame()
+        }, display_rate * 1000)
+    }
+
+    stop() {
+        clearInterval(this.interval)
     }
 }
 

@@ -33,7 +33,6 @@
 </style>
 <script>
     let collage = new Collage()
-    setInterval(function() { collage.insert_new_frame() }, 1500)
 </script>
-<body onresize="collage.update()"></body>
+<body onresize="collage.update()" onload="collage.run(1)"></body>
 </html>
