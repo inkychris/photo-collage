@@ -23,8 +23,7 @@ function shuffle(array) {
 
 class Collage {
     constructor() {
-        this.aspect_ratio = 1
-        this.scale = 0.35
+        this.scale = 0.25
         this.scale_range = 0.1
 
         this.fade_in_time = 3
@@ -34,7 +33,7 @@ class Collage {
         this.positions = positions(16, 16)
         this.active_frames = []
 
-        this.counter = 1
+        this.frame_counter = 1
     }
 
     update() {
@@ -42,24 +41,21 @@ class Collage {
     }
 
     new_frame() {
-        let global_frame_index = this.counter++
+        let global_frame_index = this.frame_counter++
         let scale = this.scale + (Math.random() - 0.5) * this.scale_range
 
-        let potential_frames =  shuffle(this.positions).map(pos =>
-            new Frame(pos, scale, this.aspect_ratio, global_frame_index))
+        let positions = shuffle(this.positions)
+        let frame = new Frame(positions[0], scale, global_frame_index)
 
-        if (this.active_frames.length < 1)
-            return potential_frames[0]
-
-        let overlap_weightings = potential_frames.map(potential_frame =>
-            this.active_frames.reduce((sum, frame_to_avoid) =>
-                sum + potential_frame.overlap(frame_to_avoid) / (potential_frame.index - frame_to_avoid.index)
-            , 0))
-
-        let min_overlap_weighting = Math.min(...overlap_weightings)
-        let frame_index = overlap_weightings.indexOf(min_overlap_weighting)
-        console.log(`found position with ${min_overlap_weighting} overlap weighting, frame index ${frame_index}`)
-        return potential_frames[frame_index]
+        let self = this
+        positions.forEach(function(position) {
+            let previous_position = frame.position
+            let previous_overlap_weighting = frame.overlap_weighting(self.active_frames)
+            frame.move_to(position)
+            if (frame.overlap_weighting(self.active_frames) >= previous_overlap_weighting)
+                frame.move_to(previous_position)
+        })
+        return frame
     }
 
     insert_new_frame() {
@@ -93,7 +89,7 @@ class Collage {
 }
 
 class Frame {
-    constructor(position, scale, aspect_ratio, index) {
+    constructor(position, scale, index) {
         this.index = index
 
         this.position = position
@@ -114,38 +110,36 @@ class Frame {
     }
 
     update() {
-        this.pixel_height = window.innerHeight * this.scale
-        this.pixel_width = this.pixel_height * this.aspect_ratio
+        this.height = window.innerHeight * this.scale
+        this.width = window.innerWidth * this.scale
 
-        if (this.pixel_width / window.innerWidth > this.scale) {
-            this.pixel_width = window.innerWidth * this.scale
-            this.pixel_height = this.pixel_width / this.aspect_ratio
-        }
+        this.left = this.position.x * (window.innerWidth - this.width)
+        this.right = this.left + this.width
+        this.top = this.position.y * (window.innerHeight - this.height)
+        this.bottom = this.top + this.height
 
-        this.pixel_left = this.position.x * (window.innerWidth - this.pixel_width)
-        this.pixel_top = this.position.y * (window.innerHeight - this.pixel_height)
-
-        this.container.style.left = `${this.pixel_left}px`
-        this.container.style.top = `${this.pixel_top}px`
-        this.container.style.width = `${this.pixel_width}px`
-        this.container.style.height = `${this.pixel_height}px`
+        this.container.style.left = `${this.left}px`
+        this.container.style.top = `${this.top}px`
+        this.container.style.width = `${this.width}px`
+        this.container.style.height = `${this.height}px`
     }
 
-    get bounds() {
-        return {
-            left: this.pixel_left,
-            right: this.pixel_left + this.pixel_width,
-            top: this.pixel_top,
-            bottom: this.pixel_top + this.pixel_height,
-        }
+    move_to(position) {
+        this.position = position
+        this.update()
     }
 
-    overlap(other_frame) {
-        let self = this.bounds
-        let other = other_frame.bounds
-        let x_overlap = Math.max(0, Math.min(self.right, other.right) - Math.max(self.left, other.left));
-        let y_overlap = Math.max(0, Math.min(self.bottom, other.bottom) - Math.max(self.top, other.top));
+    overlap(other) {
+        let x_overlap = Math.max(
+            0, Math.min(this.right, other.right) - Math.max(this.left, other.left));
+        let y_overlap = Math.max(
+            0, Math.min(this.bottom, other.bottom) - Math.max(this.top, other.top));
         return x_overlap * y_overlap;
+    }
+
+    overlap_weighting(frames) {
+        return frames.reduce(
+            (sum, frame_to_avoid) => sum + this.overlap(frame_to_avoid) / (this.index - frame_to_avoid.index), 0)
     }
 
     add_element(element) {
