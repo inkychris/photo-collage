@@ -26,6 +26,7 @@ class Collage {
         this.scale = 0.4
         this.scale_range = 0.1
 
+        this.fade_in_delay = 2
         this.fade_in_time = 5
         this.fade_out_delay = 5
         this.fade_out_time = 20
@@ -70,16 +71,21 @@ class Collage {
         frame.add_element(image_container)
 
         frame.add_to_body()
-        frame.fade_in(this.fade_in_time)
 
         let instance = this
         setTimeout(function() {
+            frame.fade_in(instance.fade_in_time)
+        }, this.fade_in_delay * 1000)
+        setTimeout(function() {
             frame.fade_out(instance.fade_out_time)
-        }, instance.fade_out_delay * 1000)
+        }, this.fade_in_delay * 1000 + this.fade_out_delay * 1000)
         setTimeout(function() {
             frame.remove_from_body()
             instance.active_frames = instance.active_frames.filter(element => element !== frame)
-        }, instance.fade_out_delay * 1000 + (instance.fade_out_time * 1000))
+        }, this.fade_in_delay * 1000 +
+            this.fade_in_time * 1000 +
+            this.fade_out_delay * 1000 +
+            this.fade_out_time * 1000)
     }
 
     insert_new_frame() {
