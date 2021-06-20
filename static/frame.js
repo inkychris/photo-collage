@@ -23,12 +23,12 @@ function shuffle(array) {
 
 class Collage {
     constructor() {
-        this.scale = 0.25
+        this.scale = 0.4
         this.scale_range = 0.1
 
-        this.fade_in_time = 3
-        this.fade_out_delay = 10
-        this.fade_out_time = 40
+        this.fade_in_time = 5
+        this.fade_out_delay = 5
+        this.fade_out_time = 20
 
         this.positions = positions(16, 16)
         this.active_frames = []
@@ -58,9 +58,16 @@ class Collage {
         return frame
     }
 
-    insert_new_frame() {
+    insert_new_image(image_src) {
         let frame = this.new_frame()
         this.active_frames.push(frame)
+
+        let image_container = document.createElement("div")
+        let image = document.createElement("img")
+        image.src = image_src
+        image.alt = ""
+        image_container.appendChild(image)
+        frame.add_element(image_container)
 
         frame.add_to_body()
         frame.fade_in(this.fade_in_time)
@@ -73,6 +80,19 @@ class Collage {
             frame.remove_from_body()
             instance.active_frames = instance.active_frames.filter(element => element !== frame)
         }, instance.fade_out_delay * 1000 + (instance.fade_out_time * 1000))
+    }
+
+    insert_new_frame() {
+        let xhttp = new XMLHttpRequest();
+        let self = this
+        xhttp.onreadystatechange = function() {
+        if (this.readyState === 4 && this.status === 200) {
+            let response = JSON.parse(this.responseText)
+            self.insert_new_image(response.src)
+        }
+        };
+        xhttp.open("GET", "next", true);
+        xhttp.send();
     }
 
     run(display_rate=1) {
@@ -94,7 +114,6 @@ class Frame {
 
         this.position = position
         this.scale = scale
-        this.aspect_ratio = aspect_ratio
 
         this.container = document.createElement("div")
         this.container.classList.add("frame")
