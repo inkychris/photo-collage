@@ -124,7 +124,7 @@ class Frame {
         this.container = document.createElement("div")
         this.container.classList.add("frame")
         this.container.style.position = "absolute"
-        this.container.style.backgroundColor = random_hsl()
+        // this.container.style.backgroundColor = random_hsl()
         this.container.style.opacity = "0"
         this.update()
 
