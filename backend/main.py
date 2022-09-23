@@ -22,7 +22,7 @@ class ImagePathGenerator:
         self.collect()
         self._index = 0
 
-    def _collect(self):
+    def collect(self):
         self._images = [
             file.relative_to(self.directory).as_posix()
             for file in self.directory.rglob('*')
@@ -57,3 +57,8 @@ async def next_url_src():
 @app.get('/', response_class=fastapi.responses.HTMLResponse)
 async def index(interval: float = 5):
     return index_template.render(collage_interval=interval)
+
+
+@app.get('/reset')
+async def reset():
+    image_path_generator.collect()
