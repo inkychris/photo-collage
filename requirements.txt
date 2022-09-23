@@ -1,2 +1,4 @@
-fastapi[all]~=0.65
+fastapi[all]
 uvicorn
+gunicorn
+jinja2

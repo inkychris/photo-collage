@@ -1,0 +1,44 @@
+version: '3'
+
+services:
+  api:
+    build:
+      dockerfile: Dockerfile
+      context: '.'
+    volumes:
+      - type: bind
+        source: ./backend
+        target: /backend
+        read_only: true
+      - type: bind
+        source: ${COLLAGE_PATH}
+        target: /images
+        read_only: true
+    environment:
+      COLLAGE_IMAGE_DIR: /images
+    ports:
+      - 8000:8000
+    command: >-
+      gunicorn backend.main:app
+      --workers 4
+      --worker-class uvicorn.workers.UvicornWorker
+      --capture-output
+      --bind 0.0.0.0:8000
+
+  proxy:
+    image: nginx:alpine
+    volumes:
+      - type: bind
+        source: ./config/nginx/nginx.conf
+        target: /etc/nginx/nginx.conf
+        read_only: true
+      - type: bind
+        source: ${COLLAGE_PATH}
+        target: /images
+        read_only: true
+      - type: bind
+        source: ./frontend
+        target: /frontend
+        read_only: true
+    ports:
+      - 80:80
