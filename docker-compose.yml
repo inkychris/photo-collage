@@ -11,13 +11,11 @@ services:
         target: /backend
         read_only: true
       - type: bind
-        source: ${COLLAGE_PATH}
+        source: ${COLLAGE_IMAGE_DIR}
         target: /images
         read_only: true
     environment:
       COLLAGE_IMAGE_DIR: /images
-    ports:
-      - 8000:8000
     command: >-
       gunicorn backend.main:app
       --workers 4
@@ -33,7 +31,7 @@ services:
         target: /etc/nginx/nginx.conf
         read_only: true
       - type: bind
-        source: ${COLLAGE_PATH}
+        source: ${COLLAGE_IMAGE_DIR}
         target: /images
         read_only: true
       - type: bind
@@ -41,4 +39,4 @@ services:
         target: /frontend
         read_only: true
     ports:
-      - 80:80
+      - ${COLLAGE_SERVER_PORT}:80
