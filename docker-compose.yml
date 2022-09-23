@@ -5,6 +5,7 @@ services:
     build:
       dockerfile: Dockerfile
       context: '.'
+    restart: always
     volumes:
       - type: bind
         source: ./backend
@@ -25,6 +26,7 @@ services:
 
   proxy:
     image: nginx:alpine
+    restart: always
     volumes:
       - type: bind
         source: ./config/nginx/nginx.conf
