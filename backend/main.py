@@ -19,7 +19,8 @@ class ImagePathGenerator:
     def __init__(self, directory: pathlib.Path):
         self.directory = directory
         self._images = []
-        self._collect()
+        self.collect()
+        self._index = 0
 
     def _collect(self):
         self._images = [
@@ -34,11 +35,11 @@ class ImagePathGenerator:
         ))
 
     def __next__(self) -> str:
-        try:
-            return self._images.pop()
-        except IndexError:
-            self._collect()
-            return self._images.pop()
+        if self._index >= len(self._images):
+            self._index = 0
+        result = self._images[self._index]
+        self._index += 1
+        return result
 
 
 app = fastapi.FastAPI()
